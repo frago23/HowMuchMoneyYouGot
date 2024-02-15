@@ -33,13 +33,13 @@
                 yearRate = rate * totalWorkingDays;
                 monthRate = rate * 20;
                 dayRate = rate;
-                hourRate = rate / 8;
+                hourRate = dayRate / 8;
                 break;
             case "Month":
                 yearRate = rate * 12;
                 monthRate = rate;
                 dayRate = rate / 20;
-                hourRate = rate;
+                hourRate = dayRate / 8;
                 break;
             case "Year":
                 yearRate = rate;
