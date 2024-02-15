@@ -84,7 +84,6 @@
         const lastFetchDate = localStorage.getItem("lastFetchDate");
         const storedRatesStr = localStorage.getItem("exchangeRates");
         const storedRates = JSON.parse(storedRatesStr);
-        console.log(storedRates.currency, currency);
         if (
             lastFetchDate &&
             storedRates &&
