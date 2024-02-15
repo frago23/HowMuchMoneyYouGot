@@ -9,10 +9,27 @@ function getTotalWorkingDays(currentYear) {
         }
         startDate.setDate(startDate.getDate() + 1);
     }
-    
+
     return workingDays;
 }
 
+function persistRates(currentRate, currency, rateFrequency) {
+    localStorage.setItem("storedDayRate", currentRate.toString());
+    localStorage.setItem("storedCurrency", currency);
+    localStorage.setItem("storedRateFrequency", rateFrequency);
+}
+
+import { dayRateStore, currencyStore, currentSavedCurrencyStore, rateFrequencyStore, currentRateFrequencyStore } from "$lib/stores.js";
+function updateStores(currentRate, currency, rateFrequency) {
+    dayRateStore.update((_) => currentRate);
+    currencyStore.update((_) => currency);
+    currentSavedCurrencyStore.update((_) => currency);
+    rateFrequencyStore.update((_) => rateFrequency);
+    currentRateFrequencyStore.update((_) => rateFrequency);
+}
+
 export {
-    getTotalWorkingDays
+    getTotalWorkingDays,
+    persistRates,
+    updateStores
 }

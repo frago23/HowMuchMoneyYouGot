@@ -1,5 +1,5 @@
 <script>
-    import { toShortForm } from "$lib/numberFormatHelper";
+    import { toHumanReadable, toShortForm } from "$lib/numberFormatHelper";
     import { getTotalWorkingDays } from "$lib/helpers";
     import {
         dayRateStore,
@@ -8,6 +8,9 @@
     } from "$lib/stores";
     import { get } from "svelte/store";
     import { onMount } from "svelte";
+
+    import ExchangeRates from "../components/exchangeRates.svelte";
+    import Loader from "../components/loader.svelte";
 
     let currentYear = new Date().getFullYear();
     let yearRate = 0;
@@ -65,25 +68,51 @@
 
     currentRateFrequencyStore.subscribe((x) => {
         rateFrequency = x;
-        calculateRates();
     });
 
+    let showLoader = true;
     onMount(() => {
-        test();
+        setTimeout(() => {
+            calculateRates();
+            fetchRates();
+            showLoader = false;
+        }, 1000);
     });
 
-    export let data;
-    async function test() {
+    export let rates;
+    async function fetchRates() {
+        const lastFetchDate = localStorage.getItem("lastFetchDate");
+        const storedRatesStr = localStorage.getItem("exchangeRates");
+        const storedRates = JSON.parse(storedRatesStr);
+        console.log(storedRates.currency, currency);
+        if (
+            lastFetchDate &&
+            storedRates &&
+            storedRates.currency == currency &&
+            new Date() - new Date(lastFetchDate) < 1000 * 60 * 60 * 5
+        ) {
+            rates = storedRates.exchangeRates;
+            return;
+        }
+
+        if (!currency) return;
         const resp = await fetch("/api/test", {
             method: "POST",
-            body: JSON.stringify({ test: "test"}),
+            body: JSON.stringify({ currency }),
             headers: {
                 "content-type": "application/json",
-            }
+            },
         });
 
-        const val = await resp.json();
-        console.log(val);
+        const data = await resp.json();
+        rates = data.data;
+        const ratesForCurrency = {
+            currency,
+            exchangeRates: rates,
+        };
+
+        localStorage.setItem("exchangeRates", JSON.stringify(ratesForCurrency));
+        localStorage.setItem("lastFetchDate", new Date());
     }
 </script>
 
@@ -97,45 +126,71 @@
     </a>
 
     <span class="my-2 text-xl"
-        >In {currentYear} with {rate} {currency} per {rateFrequency}, you earn:</span
+        >In {currentYear} with {rate}
+        {currency} per {rateFrequency}, you earn:</span
     >
-    <div class="w-full flex justify-center items-end my-8">
-        <span class="my-2 text-5xl">{toShortForm(yearRate)}</span>
-        <div class="mx-4 text-xl">
-            <span class="font-bold">{currency}</span>
-            <span class="italic">per year</span>
-        </div>
-    </div>
 
-    <div class="w-full flex justify-center items-end my-8">
-        <span class="my-2 text-5xl">{toShortForm(monthRate)}</span>
-        <div class="mx-4 text-xl">
-            <span class="font-bold">{currency}</span>
-            <span class="italic">per month</span>
-        </div>
-    </div>
+    <Loader show={showLoader} />
 
-    <div class="w-full flex justify-center items-end my-8">
-        <span class="my-2 text-5xl">{toShortForm(dayRate)}</span>
-        <div class="mx-4 text-xl">
-            <span class="font-bold">{currency}</span>
-            <span class="italic">per day</span>
-        </div>
-    </div>
+    {#if !showLoader}
+        <div class="flex flex-col my-4">
+            <div class="w-full flex justify-center items-end">
+                <span class="my-2 text-5xl">{toHumanReadable(yearRate)}</span>
+                <div class="mx-4 text-xl">
+                    <span class="font-bold">{currency}</span>
+                    <span class="italic">per year</span>
+                </div>
+            </div>
 
-    <div class="w-full flex justify-center items-end my-8">
-        <span class="my-2 text-5xl">{toShortForm(hourRate)}</span>
-        <div class="mx-4 text-xl">
-            <span class="font-bold">{currency}</span>
-            <span class="italic">per hour</span>
+            <ExchangeRates data={rates} value={yearRate} />
         </div>
-    </div>
 
-    <div class="w-full flex justify-center items-end my-8">
-        <span class="my-2 text-5xl">{toShortForm(minuteRate)}</span>
-        <div class="mx-4 text-xl">
-            <span class="font-bold">{currency}</span>
-            <span class="italic">per minute</span>
+        <div class="flex flex-col my-4">
+            <div class="w-full flex justify-center items-end">
+                <span class="my-2 text-5xl">{toHumanReadable(monthRate)}</span>
+                <div class="mx-4 text-xl">
+                    <span class="font-bold">{currency}</span>
+                    <span class="italic">per month</span>
+                </div>
+            </div>
+
+            <ExchangeRates data={rates} value={monthRate} />
         </div>
-    </div>
+
+        <div class="flex flex-col my-4">
+            <div class="w-full flex justify-center items-end">
+                <span class="my-2 text-5xl">{toHumanReadable(dayRate)}</span>
+                <div class="mx-4 text-xl">
+                    <span class="font-bold">{currency}</span>
+                    <span class="italic">per day</span>
+                </div>
+            </div>
+
+            <ExchangeRates data={rates} value={dayRate} />
+        </div>
+
+        <div class="flex flex-col my-4">
+            <div class="w-full flex justify-center items-end">
+                <span class="my-2 text-5xl">{toHumanReadable(hourRate)}</span>
+                <div class="mx-4 text-xl">
+                    <span class="font-bold">{currency}</span>
+                    <span class="italic">per hour</span>
+                </div>
+            </div>
+
+            <ExchangeRates data={rates} value={hourRate} />
+        </div>
+
+        <div class="flex flex-col my-4">
+            <div class="w-full flex justify-center items-end">
+                <span class="my-2 text-5xl">{toHumanReadable(minuteRate)}</span>
+                <div class="mx-4 text-xl">
+                    <span class="font-bold">{currency}</span>
+                    <span class="italic">per minute</span>
+                </div>
+            </div>
+
+            <ExchangeRates data={rates} value={minuteRate} />
+        </div>
+    {/if}
 </div>

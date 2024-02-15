@@ -12,8 +12,12 @@
         currentRateFrequencyStore,
     } from "$lib/stores";
     import { showNotification } from "$lib/notifications";
-    import Currencies from "../../components/currencies.svelte";
+    import { persistRates, updateStores } from "$lib/helpers";
+
+    // Components
     import RateFrequencies from "../../components/rateFrequencies.svelte";
+    import Currencies from "../../components/currencies.svelte";
+
 
     let currency = "";
     let currentSetCurrency = "";
@@ -55,23 +59,10 @@
 
     const onModifyRate = () => {
         if (currentRate < 1) return;
-
-        persistRate();
-
-        dayRateStore.update((_) => currentRate);
-        currencyStore.update((_) => currency);
-        currentSavedCurrencyStore.update((_) => currency);
-        rateFrequencyStore.update((_) => rateFrequency);
-        currentRateFrequencyStore.update((_) => rateFrequency);
-
+        persistRates(currentRate, currency, rateFrequency);
+        updateStores(currentRate, currency, rateFrequency);
         showNotification();
         goto("/");
-    };
-
-    const persistRate = () => {
-        localStorage.setItem("storedDayRate", currentRate.toString());
-        localStorage.setItem("storedCurrency", currency);
-        localStorage.setItem("storedRateFrequency", rateFrequency);
     };
 </script>
 
