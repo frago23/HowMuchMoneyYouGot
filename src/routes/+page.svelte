@@ -7,6 +7,7 @@
         currentRateFrequencyStore,
     } from "$lib/stores";
     import { get } from "svelte/store";
+    import { onMount } from "svelte";
 
     let currentYear = new Date().getFullYear();
     let yearRate = 0;
@@ -67,19 +68,23 @@
         calculateRates();
     });
 
-    // export let data;
-    // async function test() {
-    //     const resp = await fetch("/api/test", {
-    //         method: "POST",
-    //         body: JSON.stringify({ t }),
-    //         headers: {
-    //             "content-type": "application/json",
-    //         }
-    //     });
+    onMount(() => {
+        test();
+    });
 
-    //     val = await resp.json();
-    //     console.log(val);
-    // }
+    export let data;
+    async function test() {
+        const resp = await fetch("/api/test", {
+            method: "POST",
+            body: JSON.stringify({ test: "test"}),
+            headers: {
+                "content-type": "application/json",
+            }
+        });
+
+        const val = await resp.json();
+        console.log(val);
+    }
 </script>
 
 <div class="p-8 flex flex-col items-center font-serif">
