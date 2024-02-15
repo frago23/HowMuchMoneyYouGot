@@ -94,7 +94,7 @@
             <div class="flex justify-around items-center w-full">
                 <div>
                     <input
-                        class="w-[75px] shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        class="w-[100px] shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                         id="number"
                         type="number"
                         placeholder="Day rate"
