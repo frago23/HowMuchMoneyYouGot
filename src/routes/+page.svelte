@@ -56,11 +56,15 @@
 
     dayRateStore.subscribe((x) => {
         rate = x;
-        calculateRates();
     });
 
     currentSavedCurrencyStore.subscribe((x) => {
         currency = x;
+    });
+
+    currentRateFrequencyStore.subscribe((x) => {
+        rateFrequency = x;
+        calculateRates();
     });
 
     // export let data;
