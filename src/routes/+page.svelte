@@ -1,17 +1,18 @@
 <script>
     import { onMount } from "svelte";
     import { toShortForm } from "$lib/numberFormatHelper";
-    import { dayRateStore } from "$lib/stores";
+    import { dayRateStore, currencyStore } from "$lib/stores";
     import { get } from "svelte/store";
 
     let yearRate = 0;
     let monthRate = 0;
     let hourRate = 0;
     let minuteRate = 0;
-    let currency = "€";
+    let currency = '';
 
     onMount(async () => {
         const dayRate = get(dayRateStore);
+        currency = get(currencyStore);
         yearRate = dayRate * 240;
         monthRate = dayRate * 20;
         hourRate = dayRate / 8;
@@ -43,36 +44,47 @@
     </a>
 
     <span class="my-2 text-xl"
-        >With {get(dayRateStore)}{currency} day rate, you earn:</span
+        >With {get(dayRateStore)} {currency} day rate, you earn:</span
     >
     <div class="w-full flex justify-center items-end my-8">
-        <span class="my-2 text-5xl">{toShortForm(yearRate)}{currency}</span>
-        <span class="italic mx-4 text-xl">per year</span>
+        <span class="my-2 text-5xl">{toShortForm(yearRate)}</span>
+        <div class='mx-4 text-xl'>
+            <span class='font-bold'>{currency}</span>
+            <span class="italic ">per year</span>
+        </div>
     </div>
 
     <div class="w-full flex justify-center items-end my-8">
-        <span class="my-2 text-5xl">{toShortForm(monthRate)}{currency}</span>
-        <span class="italic mx-4 text-xl">per month</span>
+        <span class="my-2 text-5xl">{toShortForm(monthRate)}</span>
+        <div class='mx-4 text-xl'>
+            <span class='font-bold'>{currency}</span>
+            <span class="italic">per month</span>
+        </div>
     </div>
 
     <div class="w-full flex justify-center items-end my-8">
         <span class="my-2 text-5xl"
-            >{toShortForm(get(dayRateStore))}{currency}</span
+            >{toShortForm(get(dayRateStore))}</span
         >
-        <span class="italic mx-4 text-xl">per day</span>
+        <div class='mx-4 text-xl'>
+            <span class='font-bold'>{currency}</span>        
+            <span class="italic">per day</span>
+        </div>
     </div>
 
     <div class="w-full flex justify-center items-end my-8">
-        <span class="my-2 text-5xl">{toShortForm(hourRate)}{currency}</span>
-        <span class="italic mx-4 text-xl">per hour</span>
+        <span class="my-2 text-5xl">{toShortForm(hourRate)}</span>
+        <div class='mx-4 text-xl'>
+            <span class='font-bold'>{currency}</span>        
+            <span class="italic">per hour</span>
+        </div>
     </div>
 
     <div class="w-full flex justify-center items-end my-8">
-        <span class="my-2 text-5xl">{toShortForm(minuteRate)}{currency}</span>
-        <span class="italic mx-4 text-xl">per minute</span>
+        <span class="my-2 text-5xl">{toShortForm(minuteRate)}</span>
+        <div class='mx-4 text-xl'>
+            <span class='font-bold'>{currency}</span>        
+            <span class="italic">per minute</span>
+        </div>
     </div>
 </div>
-
-<!-- <span>{data.test.name}</span>
-<input bind:value={t} />
-<button on:click={test}>Test</button> -->

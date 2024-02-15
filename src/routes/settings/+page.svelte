@@ -4,14 +4,23 @@
     import { goto } from "$app/navigation";
 
     // $lib
-    import { dayRateStore } from "$lib/stores";
+    import { dayRateStore, currencyStore } from "$lib/stores";
     import { showNotification } from "$lib/notifications";
+    import Currencies from "../../components/currencies.svelte";
+
+    let currency = '';
+    let currentSetCurrency = '';
 
     let currentSetRate = 0;
     let currentRate = 0;
+
+    currencyStore.subscribe(x => {
+        currency = x;
+    })
+
     onMount(() => {
         const rate = get(dayRateStore);
-        console.log(rate);
+        currentSetCurrency = get(currencyStore);
         currentRate = rate == null ? 0 : rate;
         currentSetRate = currentRate;
     });
@@ -21,6 +30,7 @@
 
         persistRate();
         dayRateStore.update((_) => currentRate);
+        currencyStore.update((_) => currency);
         showNotification();
         goto("/");
     };
@@ -41,7 +51,9 @@
         </a>
 
         <div class="mt-8">
-            <span>Your current day rate is set to {currentSetRate}€</span>
+            <span>Your current day rate is set to {currentSetRate} {currentSetCurrency}</span>
+
+            <Currencies />
 
             <div class="my-4">
                 <input
