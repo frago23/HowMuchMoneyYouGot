@@ -1,22 +1,66 @@
 <script>
-    import { onMount } from "svelte";
     import { toShortForm } from "$lib/numberFormatHelper";
-    import { dayRateStore, currencyStore } from "$lib/stores";
+    import { getTotalWorkingDays } from "$lib/helpers";
+    import {
+        dayRateStore,
+        currentSavedCurrencyStore,
+        currentRateFrequencyStore,
+    } from "$lib/stores";
     import { get } from "svelte/store";
 
+    let currentYear = new Date().getFullYear();
     let yearRate = 0;
     let monthRate = 0;
+    let dayRate = 0;
+    let rate = 0;
     let hourRate = 0;
     let minuteRate = 0;
-    let currency = '';
+    let rateFrequency = "";
+    let currency = "";
 
-    onMount(async () => {
-        const dayRate = get(dayRateStore);
-        currency = get(currencyStore);
-        yearRate = dayRate * 240;
-        monthRate = dayRate * 20;
-        hourRate = dayRate / 8;
+    const calculateRates = () => {
+        rateFrequency = get(currentRateFrequencyStore);
+        const totalWorkingDays = getTotalWorkingDays(currentYear);
+
+        switch (rateFrequency) {
+            case "Hour":
+                yearRate = rate * totalWorkingDays * 8;
+                monthRate = rate * 20 * 8;
+                dayRate = rate * 8;
+                hourRate = rate;
+                break;
+            case "Day":
+                yearRate = rate * totalWorkingDays;
+                monthRate = rate * 20;
+                dayRate = rate;
+                hourRate = rate / 8;
+                break;
+            case "Month":
+                yearRate = rate * 12;
+                monthRate = rate;
+                dayRate = rate / 20;
+                hourRate = rate;
+                break;
+            case "Year":
+                yearRate = rate;
+                monthRate = rate / 12;
+                dayRate = rate / totalWorkingDays;
+                hourRate = dayRate / 8;
+                break;
+            default:
+                break;
+        }
+
         minuteRate = hourRate / 60;
+    };
+
+    dayRateStore.subscribe((x) => {
+        rate = x;
+        calculateRates();
+    });
+
+    currentSavedCurrencyStore.subscribe((x) => {
+        currency = x;
     });
 
     // export let data;
@@ -44,46 +88,44 @@
     </a>
 
     <span class="my-2 text-xl"
-        >With {get(dayRateStore)} {currency} day rate, you earn:</span
+        >In {currentYear} with {rate} {currency} per {rateFrequency}, you earn:</span
     >
     <div class="w-full flex justify-center items-end my-8">
         <span class="my-2 text-5xl">{toShortForm(yearRate)}</span>
-        <div class='mx-4 text-xl'>
-            <span class='font-bold'>{currency}</span>
-            <span class="italic ">per year</span>
+        <div class="mx-4 text-xl">
+            <span class="font-bold">{currency}</span>
+            <span class="italic">per year</span>
         </div>
     </div>
 
     <div class="w-full flex justify-center items-end my-8">
         <span class="my-2 text-5xl">{toShortForm(monthRate)}</span>
-        <div class='mx-4 text-xl'>
-            <span class='font-bold'>{currency}</span>
+        <div class="mx-4 text-xl">
+            <span class="font-bold">{currency}</span>
             <span class="italic">per month</span>
         </div>
     </div>
 
     <div class="w-full flex justify-center items-end my-8">
-        <span class="my-2 text-5xl"
-            >{toShortForm(get(dayRateStore))}</span
-        >
-        <div class='mx-4 text-xl'>
-            <span class='font-bold'>{currency}</span>        
+        <span class="my-2 text-5xl">{toShortForm(dayRate)}</span>
+        <div class="mx-4 text-xl">
+            <span class="font-bold">{currency}</span>
             <span class="italic">per day</span>
         </div>
     </div>
 
     <div class="w-full flex justify-center items-end my-8">
         <span class="my-2 text-5xl">{toShortForm(hourRate)}</span>
-        <div class='mx-4 text-xl'>
-            <span class='font-bold'>{currency}</span>        
+        <div class="mx-4 text-xl">
+            <span class="font-bold">{currency}</span>
             <span class="italic">per hour</span>
         </div>
     </div>
 
     <div class="w-full flex justify-center items-end my-8">
         <span class="my-2 text-5xl">{toShortForm(minuteRate)}</span>
-        <div class='mx-4 text-xl'>
-            <span class='font-bold'>{currency}</span>        
+        <div class="mx-4 text-xl">
+            <span class="font-bold">{currency}</span>
             <span class="italic">per minute</span>
         </div>
     </div>
